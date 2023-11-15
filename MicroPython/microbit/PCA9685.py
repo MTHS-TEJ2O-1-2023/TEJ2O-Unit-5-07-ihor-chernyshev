@@ -1,43 +1,3 @@
-# SparkFun Electronics
-# Experiment 8.0
-# Using a servo motor
-
-#from microbit import *
-
-#display.show(Image.HAPPY)
-#sleep(1000)
-#display.show(Image.HEART)
-
-
-#import robotbit
-#robotbit.servo(0, 90)
-
-# geekservo
-#robotbit.servo(0, 180)
-
-#from microbit import PCA9685
-
-from microbit import * 
-# Servo control: 
-# 50 = ~1 millisecond pulse all right 
-# 75 = ~1.5 millisecond pulse center 
-# 100 = ~2.0 millisecond pulse all left 
-#pin = pin8
-
-#pin.set_analog_period(20)
-
-#while True: 
-#    display.show(Image.HAPPY)
-#    pin.write_analog(75)
-#    sleep(1000)
-#    display.show(Image.HEART)
-#    pin.write_analog(50)
-#    sleep(1000)
-#    display.show(Image.ANGRY)
-#    pin.write_analog(100)
-#    sleep(1000)
-
-
 # Adapted from https://github.com/KittenBot/pxt-robotbit/blob/master/main.ts
 
 from microbit import i2c
@@ -93,6 +53,47 @@ class PCA9685:
     def releaseServo(self, servo): # servo: 1, etc.
         self.setPwm(servo + 7, 0, 0)
 
+    def setStepper(self, index, dir): # index: 1 or 2, dir: True or False
+       if (index == 1):
+           if (dir): 
+               self.setPwm(0, _STP_CHA_L, _STP_CHA_H)
+               self.setPwm(2, _STP_CHB_L, _STP_CHB_H)
+               self.setPwm(1, _STP_CHC_L, _STP_CHC_H)
+               self.setPwm(3, _STP_CHD_L, _STP_CHD_H)
+           else:
+               self.setPwm(3, _STP_CHA_L, _STP_CHA_H)
+               self.setPwm(1, _STP_CHB_L, _STP_CHB_H)
+               self.setPwm(2, _STP_CHC_L, _STP_CHC_H)
+               self.setPwm(0, _STP_CHD_L, _STP_CHD_H)
+       else:
+           if (dir):
+               self.setPwm(4, _STP_CHA_L, _STP_CHA_H)
+               self.setPwm(6, _STP_CHB_L, _STP_CHB_H)
+               self.setPwm(5, _STP_CHC_L, _STP_CHC_H)
+               self.setPwm(7, _STP_CHD_L, _STP_CHD_H)
+           else:
+               self.setPwm(7, _STP_CHA_L, _STP_CHA_H)
+               self.setPwm(5, _STP_CHB_L, _STP_CHB_H)
+               self.setPwm(6, _STP_CHC_L, _STP_CHC_H)
+               self.setPwm(4, _STP_CHD_L, _STP_CHD_H)
+
+    def stopStepper(self, index):
+        for i in range(0,4) if (index == 1) else range(4,8):
+            self.setPwm(i, 0, 0)
+    
+    def moveStepperDegrees(self, index, degrees): # index: 1 or 2    
+        self.setStepper(index, degrees > 0)
+        delta_ms = round(abs(10240 * abs(degrees) / 360))
+        return delta_ms # returns milliseconds to stop
+
+    def moveStepperDegreesBlocking(self, index, degrees): # index: 1 or 2
+        delta_ms = self.moveStepperDegrees(index, degrees)
+        time.sleep_ms(delta_ms)
+        self.stopStepper(index)
+        
+    def startStepper(self, index, clockwise=True): # index: 1 or 2
+        self.setStepper(index, clockwise)
+
 if __name__=='__main__':   
 
     pca = PCA9685()
@@ -101,12 +102,3 @@ if __name__=='__main__':
     time.sleep_ms(delta)
     pca.stopStepper(1)
     
-
-
-pca = PCA9685()
-
-while True:
-    pca.setServoDegrees(1, 90)
-    sleep(500)
-    pca.setServoDegrees(1, 180)
-    sleep(500)
