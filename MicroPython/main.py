@@ -1,4 +1,6 @@
 from microbit import *
+
+# From https://github.com/lopezsolerluis/robotbit-micropython
 from microbit import i2c
 import time
 
@@ -15,6 +17,7 @@ _STP_CHC_L = 1023
 _STP_CHC_H = 3071
 _STP_CHD_L = 3071
 _STP_CHD_H = 1023
+
 
 class PCA9685:
 
@@ -93,11 +96,28 @@ class PCA9685:
     def startStepper(self, index, clockwise=True): # index: 1 or 2
         self.setStepper(index, clockwise)
 
-
+# setup
 pca = PCA9685()
 
+display.clear()
+display.show(Image.HAPPY)
+
 while True:
-    pca.setServoDegrees(1, 0)
-    sleep(500)
-    pca.setServoDegrees(1, 180)
-    sleep(500)
+    # button A
+    if button_a.was_pressed():
+        # goes to 0 degrees
+        pca.setServoDegrees(1, 0)
+        display.clear()
+        display.scroll(0)
+        display.show(Image.SQUARE_SMALL)
+        sleep(500)
+        display.show(Image.HAPPY)
+    # button B
+    if button_b.was_pressed():
+        # goes to 180 degrees
+        pca.setServoDegrees(1, 180)
+        display.clear()
+        display.scroll(180)
+        display.show(Image.SQUARE_SMALL)
+        sleep(500)
+        display.show(Image.HAPPY)
